@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.abhijitm.wardrobe.ActMain">
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/actMain_viewpagerTop"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_toLeftOf="@+id/actMain_divider"
+        android:background="#d27878" />
+
+    <View
+        android:id="@+id/actMain_divider"
+        android:layout_width="2dp"
+        android:layout_height="match_parent"
+        android:layout_centerHorizontal="true"
+        android:background="#262626" />
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/actMain_viewpagerBottom"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_toRightOf="@+id/actMain_divider"
+        android:background="#74c0e1" />
+</RelativeLayout>
