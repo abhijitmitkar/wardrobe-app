@@ -10,19 +10,19 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_toLeftOf="@+id/actMain_divider"
-        android:background="#d27878" />
+        android:background="@color/testTop" />
 
     <View
         android:id="@+id/actMain_divider"
         android:layout_width="2dp"
         android:layout_height="match_parent"
         android:layout_centerHorizontal="true"
-        android:background="#262626" />
+        android:background="@color/testDivider" />
 
     <android.support.v4.view.ViewPager
         android:id="@+id/actMain_viewpagerBottom"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_toRightOf="@+id/actMain_divider"
-        android:background="#74c0e1" />
+        android:background="@color/testBottom" />
 </RelativeLayout>

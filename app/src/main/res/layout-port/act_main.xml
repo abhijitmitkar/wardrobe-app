@@ -5,24 +5,50 @@
     android:layout_height="match_parent"
     tools:context="com.abhijitm.wardrobe.ActMain">
 
-    <android.support.v4.view.ViewPager
-        android:id="@+id/actMain_viewpagerTop"
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/actMain_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:layout_alignParentTop="false"
+        android:background="?attr/colorPrimary"
+        android:minHeight="?attr/actionBarSize"
+        android:popupTheme="@style/AppTheme.PopupOverlay"
+        android:theme="@style/AppTheme.AppBarOverlay" />
+
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/actMain_divider"
-        android:background="#d27878" />
+        android:layout_below="@+id/actMain_toolbar">
 
-    <View
-        android:id="@+id/actMain_divider"
-        android:layout_width="match_parent"
-        android:layout_height="2dp"
-        android:layout_centerVertical="true"
-        android:background="#262626" />
+        <android.support.v4.view.ViewPager
+            android:id="@+id/actMain_viewpagerTop"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@+id/actMain_divider"
+            android:background="@color/testTop" />
 
-    <android.support.v4.view.ViewPager
-        android:id="@+id/actMain_viewpagerBottom"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@+id/actMain_divider"
-        android:background="#74c0e1" />
+        <View
+            android:id="@+id/actMain_divider"
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:layout_centerVertical="true"
+            android:background="@color/testDivider" />
+
+        <android.support.v4.view.ViewPager
+            android:id="@+id/actMain_viewpagerBottom"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/actMain_divider"
+            android:background="@color/testBottom" />
+    </RelativeLayout>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/actMain_fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_margin="@dimen/activity_vertical_margin"
+        android:src="@drawable/ic_action_new" />
 </RelativeLayout>
+
