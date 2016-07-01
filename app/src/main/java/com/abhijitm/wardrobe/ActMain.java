@@ -1,18 +1,24 @@
 package com.abhijitm.wardrobe;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.PopupMenu;
-import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Toast;
+
+import com.abhijitm.wardrobe.adapters.AdapterBottom;
+import com.abhijitm.wardrobe.adapters.AdapterTop;
+import com.abhijitm.wardrobe.models.Garment;
 
 public class ActMain extends AppCompatActivity {
 
@@ -38,6 +44,11 @@ public class ActMain extends AppCompatActivity {
         // fab
         fab = (FloatingActionButton) findViewById(R.id.actMain_fab);
         fab.setOnClickListener(onClickListener);
+
+        // adapters
+        viewPagerTop.setAdapter(new AdapterTop(getSupportFragmentManager()));
+        viewPagerBottom.setAdapter(new AdapterBottom(getSupportFragmentManager()));
+
     }
 
     @Override
@@ -62,16 +73,16 @@ public class ActMain extends AppCompatActivity {
         @Override
         public void onClick(View view) {
             PopupMenu popupMenu = new PopupMenu(context, view, GravityCompat.END);
-            popupMenu.inflate(R.menu.menu_fab_options);
+            popupMenu.inflate(R.menu.menu_options_garment);
             popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                 @Override
                 public boolean onMenuItemClick(MenuItem item) {
                     switch (item.getItemId()) {
-                        case R.id.menuFab_camera:
-                            // TODO
+                        case R.id.menuGarment_top:
+                            showOptions(Garment.TYPE_TOP);
                             return true;
-                        case R.id.menuFab_picker:
-                            // TODO
+                        case R.id.menuGarment_bottom:
+                            showOptions(Garment.TYPE_BOTTOM);
                             return true;
                     }
                     return false;
@@ -80,4 +91,26 @@ public class ActMain extends AppCompatActivity {
             popupMenu.show();
         }
     };
+
+    private void showOptions(String type) {
+        new AlertDialog.Builder(context)
+                .setTitle("Choose image from")
+                .setItems(R.array.media_options, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        switch (i) {
+                            case 0:
+                                // camera
+
+                                break;
+                            case 1:
+                                // gallery
+
+                                break;
+                        }
+                    }
+                })
+                .create()
+                .show();
+    }
 }
