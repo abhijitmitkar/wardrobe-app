@@ -26,4 +26,14 @@ public class AppUtils {
             }
         }
     }
+
+    /**
+     * This method generates a unique ID for DB objects
+     *
+     * @param className Class name for which ID is generated
+     * @return A unique ID which is a combination of class name and timestamp
+     */
+    public static String generateId(String className) {
+        return className.toLowerCase() + "_" + System.currentTimeMillis();
+    }
 }

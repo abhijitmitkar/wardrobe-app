@@ -1,24 +1,21 @@
 package com.abhijitm.wardrobe;
 
 import android.content.Context;
-import android.content.DialogInterface;
+import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.PopupMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.Toast;
 
-import com.abhijitm.wardrobe.adapters.AdapterBottom;
-import com.abhijitm.wardrobe.adapters.AdapterTop;
 import com.abhijitm.wardrobe.models.Garment;
+
+import io.realm.Realm;
+import io.realm.RealmChangeListener;
+import io.realm.RealmResults;
 
 public class ActMain extends AppCompatActivity {
 
@@ -26,6 +23,11 @@ public class ActMain extends AppCompatActivity {
     private ViewPager viewPagerBottom;
     private FloatingActionButton fab;
     private Context context;
+    private Realm realm;
+    private RealmResults<Garment> listTops;
+    private RealmResults<Garment> listBottoms;
+    private AdapterGarments adapterTops;
+    private AdapterGarments adapterBottoms;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +35,9 @@ public class ActMain extends AppCompatActivity {
         setContentView(R.layout.act_main);
 
         context = this;
+
+        // get realm instance
+        realm = Realm.getDefaultInstance();
 
         // initialize views
         // toolbar
@@ -45,10 +50,35 @@ public class ActMain extends AppCompatActivity {
         fab = (FloatingActionButton) findViewById(R.id.actMain_fab);
         fab.setOnClickListener(onClickListener);
 
-        // adapters
-        viewPagerTop.setAdapter(new AdapterTop(getSupportFragmentManager()));
-        viewPagerBottom.setAdapter(new AdapterBottom(getSupportFragmentManager()));
+        // query Garments of type 'top' from realm
+        listTops = realm.where(Garment.class)
+                .equalTo(Garment.COL_TYPE, Garment.TYPE_TOP)
+                .findAllAsync();
+        listTops.addChangeListener(new RealmChangeListener<RealmResults<Garment>>() {
+            @Override
+            public void onChange(RealmResults<Garment> results) {
+                adapterTops.notifyDataSetChanged();
+            }
+        });
+        // create adapter for tops
+        adapterTops = new AdapterGarments(getSupportFragmentManager(), listTops);
+        // set adapter for tops
+        viewPagerTop.setAdapter(adapterTops);
 
+        // query Garments of type 'bottom' from realm
+        listBottoms = realm.where(Garment.class)
+                .equalTo(Garment.COL_TYPE, Garment.TYPE_BOTTOM)
+                .findAllAsync();
+        listBottoms.addChangeListener(new RealmChangeListener<RealmResults<Garment>>() {
+            @Override
+            public void onChange(RealmResults<Garment> results) {
+                adapterBottoms.notifyDataSetChanged();
+            }
+        });
+        // create adapter for tops
+        adapterBottoms = new AdapterGarments(getSupportFragmentManager(), listBottoms);
+        // set adapter for tops
+        viewPagerBottom.setAdapter(adapterBottoms);
     }
 
     @Override
@@ -92,8 +122,21 @@ public class ActMain extends AppCompatActivity {
         }
     };
 
-    private void showOptions(String type) {
-        new AlertDialog.Builder(context)
+    private void showOptions(final String type) {
+
+        realm.executeTransactionAsync(new Realm.Transaction() {
+            @Override
+            public void execute(Realm bgRealm) {
+                Garment garment = bgRealm.createObject(Garment.class);
+                String id = AppUtils.generateId(Garment.CLASS_NAME);
+                garment.setId(id);
+                garment.setFilepath(id);
+                garment.setType(type);
+            }
+        });
+
+
+        /*new AlertDialog.Builder(context)
                 .setTitle("Choose image from")
                 .setItems(R.array.media_options, new DialogInterface.OnClickListener() {
                     @Override
@@ -111,6 +154,13 @@ public class ActMain extends AppCompatActivity {
                     }
                 })
                 .create()
-                .show();
+                .show();*/
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // close realm instance
+        realm.close();
     }
 }

@@ -9,35 +9,35 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.abhijitm.wardrobe.models.Garment;
 
-public class FragTop extends Fragment {
 
+public class FragGarment extends Fragment {
 
-    private int position;
+    private static Garment mGarment;
 
-    public FragTop() {
+    public FragGarment() {
         // Required empty public constructor
     }
 
-    public static FragTop newInstance(int position) {
-        FragTop fragTop = new FragTop();
-        Bundle bundle = new Bundle();
-        bundle.putInt("position", position);
-        fragTop.setArguments(bundle);
-        return fragTop;
+    public static FragGarment newInstance(Garment garment) {
+        FragGarment fragGarment = new FragGarment();
+        mGarment = garment;
+//        Bundle bundle = new Bundle();
+//        fragGarment.setArguments(bundle);
+        return fragGarment;
     }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        position = getArguments().getInt("position");
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.frag_top, container, false);
-        ((TextView) view.findViewById(R.id.fragTop_txt)).setText("Top Fragment " + position);
+        View view = inflater.inflate(R.layout.frag_garment, container, false);
+        ((TextView) view.findViewById(R.id.fragGarment_txt)).setText("Top " + mGarment.getFilepath());
         return view;
     }
 
