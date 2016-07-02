@@ -51,7 +51,6 @@ public class FragGarment extends Fragment {
         // set image on image view
         Picasso.with(getContext()).load(file).fit().centerCrop().into(imgGarment);
 
-        ((TextView) view.findViewById(R.id.fragGarment_txt)).setText(mGarment.getType() + " " + mGarment.getFilepath());
         return view;
     }
 

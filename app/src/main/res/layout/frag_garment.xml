@@ -10,12 +10,4 @@
         android:layout_height="match_parent"
         android:adjustViewBounds="true" />
 
-    <TextView
-        android:id="@+id/fragGarment_txt"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:textColor="@android:color/white"
-        android:text="@string/hello_blank_fragment" />
-
 </FrameLayout>

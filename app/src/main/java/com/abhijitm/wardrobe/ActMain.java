@@ -1,7 +1,6 @@
 package com.abhijitm.wardrobe;
 
 import android.Manifest;
-import android.animation.FloatEvaluator;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -20,9 +19,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.abhijitm.wardrobe.models.Favourite;
 import com.abhijitm.wardrobe.models.Garment;
-
-import java.io.File;
 
 import io.realm.Realm;
 import io.realm.RealmChangeListener;
@@ -108,6 +106,7 @@ public class ActMain extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menuMain_shuffle:
+                shuffle();
                 return true;
             case R.id.menuMain_favourite:
                 return true;
@@ -140,7 +139,7 @@ public class ActMain extends AppCompatActivity {
         selectedType = type;
 
         new AlertDialog.Builder(context)
-                .setTitle("Choose image from")
+                .setTitle("Get photo using")
                 .setItems(R.array.media_options, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
@@ -150,7 +149,7 @@ public class ActMain extends AppCompatActivity {
                                 startCameraProcess();
                                 break;
                             case 1:
-                                // picker
+                                // image picker
                                 startPickerProcess();
                                 break;
                         }
@@ -228,12 +227,18 @@ public class ActMain extends AppCompatActivity {
             @Override
             public void execute(Realm bgRealm) {
                 Garment garment = bgRealm.createObject(Garment.class);
-                String id = AppUtils.generateId(Garment.CLASS_NAME);
-                garment.setId(id);
+                garment.setId(AppUtils.generateId(Garment.CLASS_NAME));
                 garment.setFilepath(filepath);
                 garment.setType(selectedType);
             }
         });
+    }
+
+    private void shuffle() {
+        int randomTop = AppUtils.getRandomNumber(listTops.size());
+        int randomBottom = AppUtils.getRandomNumber(listBottoms.size());
+        viewPagerTop.setCurrentItem(randomTop, true);
+        viewPagerBottom.setCurrentItem(randomBottom, true);
     }
 
     @Override
