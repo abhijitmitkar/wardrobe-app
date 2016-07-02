@@ -1,6 +1,7 @@
 package com.abhijitm.wardrobe;
 
 import android.Manifest;
+import android.animation.FloatEvaluator;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -210,11 +211,15 @@ public class ActMain extends AppCompatActivity {
 
         } else if (requestCode == MediaHelper.REQUEST_CODE_PICKER_PRE_KITKAT && resultCode == RESULT_OK) {
             Uri uri = data.getData();
-            System.out.println("ActMain.onActivityResult pre kitkat url + " + uri.getPath());
+            String path = MediaHelper.getFilePathFromUri(context, uri);
+            System.out.println("ActMain.onActivityResult pre kitkat url + " + path);
+            saveToDB(path);
 
         } else if (requestCode == MediaHelper.REQUEST_CODE_PICKER_POST_KITKAT && resultCode == RESULT_OK) {
             Uri uri = MediaHelper.checkForUriPermission_API19(context, data);
-            System.out.println("ActMain.onActivityResult post kitkat url + " + uri.getPath());
+            String path = MediaHelper.getFilePathFromUri(context, uri);
+            System.out.println("ActMain.onActivityResult post kitkat url + " + path);
+            saveToDB(path);
         }
     }
 

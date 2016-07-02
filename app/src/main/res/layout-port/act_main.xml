@@ -24,22 +24,20 @@
             android:id="@+id/actMain_viewpagerTop"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_above="@+id/actMain_divider"
-            android:background="@color/testTop" />
+            android:layout_above="@+id/actMain_divider" />
 
         <View
             android:id="@+id/actMain_divider"
             android:layout_width="match_parent"
             android:layout_height="2dp"
             android:layout_centerVertical="true"
-            android:background="@color/testDivider" />
+            android:background="@color/colorDivider" />
 
         <android.support.v4.view.ViewPager
             android:id="@+id/actMain_viewpagerBottom"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@+id/actMain_divider"
-            android:background="@color/testBottom" />
+            android:layout_below="@+id/actMain_divider" />
     </RelativeLayout>
 
     <android.support.design.widget.FloatingActionButton
