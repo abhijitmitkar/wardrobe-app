@@ -245,8 +245,14 @@ public class ActMain extends AppCompatActivity {
     }
 
     private void shuffle() {
+        int currentTop = viewPagerTop.getCurrentItem();
+        int currentBottom = viewPagerBottom.getCurrentItem();
         int randomTop = AppUtils.getRandomNumber(listTops.size());
         int randomBottom = AppUtils.getRandomNumber(listBottoms.size());
+        while (randomTop == currentTop) randomTop = AppUtils.getRandomNumber(listTops.size());
+        while (randomBottom == currentBottom)
+            randomBottom = AppUtils.getRandomNumber(listBottoms.size());
+
         viewPagerTop.setCurrentItem(randomTop, true);
         viewPagerBottom.setCurrentItem(randomBottom, true);
     }
