@@ -11,13 +11,17 @@ public class Garment extends RealmObject {
     public static final String COL_ID = "id";
     public static final String COL_FILEPATH = "filepath";
     public static final String COL_TYPE = "type";
+    public static final String COL_SOURCE = "source";
 
-    public static final String TYPE_TOP = "top";
-    public static final String TYPE_BOTTOM = "bottom";
+    public static final int TYPE_TOP = 0;
+    public static final int TYPE_BOTTOM = 1;
+    public static final int SOURCE_CAMERA = 0;
+    public static final int SOURCE_PICKER = 1;
 
     private String id;
     private String filepath;
-    private String type;
+    private int type;
+    private int source;
 
     public String getId() {
         return id;
@@ -35,11 +39,19 @@ public class Garment extends RealmObject {
         this.filepath = filepath;
     }
 
-    public String getType() {
+    public int getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(int type) {
         this.type = type;
+    }
+
+    public int getSource() {
+        return source;
+    }
+
+    public void setSource(int source) {
+        this.source = source;
     }
 }

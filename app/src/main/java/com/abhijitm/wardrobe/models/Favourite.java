@@ -13,8 +13,8 @@ public class Favourite extends RealmObject {
     public static final String COL_BOTTOM = "bottom";
 
     private String id;
-    private Garment top;
-    private Garment bottom;
+    private String top;
+    private String bottom;
 
     public String getId() {
         return id;
@@ -24,19 +24,19 @@ public class Favourite extends RealmObject {
         this.id = id;
     }
 
-    public Garment getTop() {
+    public String getTop() {
         return top;
     }
 
     public void setTop(Garment top) {
-        this.top = top;
+        this.top = top.getId();
     }
 
-    public Garment getBottom() {
+    public String getBottom() {
         return bottom;
     }
 
     public void setBottom(Garment bottom) {
-        this.bottom = bottom;
+        this.bottom = bottom.getId();
     }
 }

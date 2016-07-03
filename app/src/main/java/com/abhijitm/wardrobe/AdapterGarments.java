@@ -31,7 +31,7 @@ public class AdapterGarments extends FragmentStatePagerAdapter {
      */
     @Override
     public Fragment getItem(int position) {
-        return FragGarment.newInstance(listGarments.get(position));
+        return FragGarment.newInstance(listGarments.get(position).getId());
     }
 
     /**

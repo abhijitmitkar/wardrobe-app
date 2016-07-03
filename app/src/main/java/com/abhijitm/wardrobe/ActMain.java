@@ -15,12 +15,14 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-import com.abhijitm.wardrobe.models.Favourite;
 import com.abhijitm.wardrobe.models.Garment;
+
+import java.io.File;
 
 import io.realm.Realm;
 import io.realm.RealmChangeListener;
@@ -28,16 +30,16 @@ import io.realm.RealmResults;
 
 public class ActMain extends AppCompatActivity {
 
+    private static final String TAG = "ActMain";
     private ViewPager viewPagerTop;
     private ViewPager viewPagerBottom;
     private FloatingActionButton fab;
     private Context context;
-    private Realm realm;
     private RealmResults<Garment> listTops;
     private RealmResults<Garment> listBottoms;
     private AdapterGarments adapterTops;
     private AdapterGarments adapterBottoms;
-    private String selectedType = "";
+    private int selectedType = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,9 +47,6 @@ public class ActMain extends AppCompatActivity {
         setContentView(R.layout.act_main);
 
         context = this;
-
-        // get realm instance
-        realm = Realm.getDefaultInstance();
 
         // initialize views
         // toolbar
@@ -66,7 +65,7 @@ public class ActMain extends AppCompatActivity {
         });
 
         // query Garments of type 'top' from realm
-        listTops = realm.where(Garment.class)
+        listTops = Realm.getDefaultInstance().where(Garment.class)
                 .equalTo(Garment.COL_TYPE, Garment.TYPE_TOP)
                 .findAllAsync();
         listTops.addChangeListener(new RealmChangeListener<RealmResults<Garment>>() {
@@ -81,7 +80,7 @@ public class ActMain extends AppCompatActivity {
         viewPagerTop.setAdapter(adapterTops);
 
         // query Garments of type 'bottom' from realm
-        listBottoms = realm.where(Garment.class)
+        listBottoms = Realm.getDefaultInstance().where(Garment.class)
                 .equalTo(Garment.COL_TYPE, Garment.TYPE_BOTTOM)
                 .findAllAsync();
         listBottoms.addChangeListener(new RealmChangeListener<RealmResults<Garment>>() {
@@ -94,6 +93,17 @@ public class ActMain extends AppCompatActivity {
         adapterBottoms = new AdapterGarments(getSupportFragmentManager(), listBottoms);
         // set adapter for tops
         viewPagerBottom.setAdapter(adapterBottoms);
+
+        // set listeners on viewpagers
+//        setViewPagerListeners();
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // check for favourites
+//        checkIfFavourite();
     }
 
     @Override
@@ -109,6 +119,7 @@ public class ActMain extends AppCompatActivity {
                 shuffle();
                 return true;
             case R.id.menuMain_favourite:
+//                saveAsFavourite();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -135,7 +146,7 @@ public class ActMain extends AppCompatActivity {
         popupMenu.show();
     }
 
-    private void showOptions(final String type) {
+    private void showOptions(final int type) {
         selectedType = type;
 
         new AlertDialog.Builder(context)
@@ -203,33 +214,32 @@ public class ActMain extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == MediaHelper.REQUEST_CODE_CAMERA && resultCode == RESULT_OK) {
-//            File file = new File(MediaHelper.mCurrentPhotoPath);
-            System.out.println("ActMain.onActivityResult camera url + " + MediaHelper.mCurrentPhotoPath);
-            saveToDB(MediaHelper.mCurrentPhotoPath);
-
+            Log.i(TAG, "ActMain.onActivityResult camera url + " + MediaHelper.mCurrentPhotoPath);
+            saveToDB(Garment.SOURCE_CAMERA, MediaHelper.mCurrentPhotoPath);
 
         } else if (requestCode == MediaHelper.REQUEST_CODE_PICKER_PRE_KITKAT && resultCode == RESULT_OK) {
             Uri uri = data.getData();
-            String path = MediaHelper.getFilePathFromUri(context, uri);
-            System.out.println("ActMain.onActivityResult pre kitkat url + " + path);
-            saveToDB(path);
+            String path = uri.toString();
+            Log.i(TAG, "ActMain.onActivityResult pre kitkat url + " + path);
+            saveToDB(Garment.SOURCE_PICKER, path);
 
         } else if (requestCode == MediaHelper.REQUEST_CODE_PICKER_POST_KITKAT && resultCode == RESULT_OK) {
             Uri uri = MediaHelper.checkForUriPermission_API19(context, data);
-            String path = MediaHelper.getFilePathFromUri(context, uri);
-            System.out.println("ActMain.onActivityResult post kitkat url + " + path);
-            saveToDB(path);
+            String path = uri.toString();
+            Log.i(TAG, "ActMain.onActivityResult post kitkat url + " + path);
+            saveToDB(Garment.SOURCE_PICKER, path);
         }
     }
 
-    private void saveToDB(final String filepath) {
-        realm.executeTransactionAsync(new Realm.Transaction() {
+    private void saveToDB(final int source, final String filepath) {
+        Realm.getDefaultInstance().executeTransactionAsync(new Realm.Transaction() {
             @Override
             public void execute(Realm bgRealm) {
                 Garment garment = bgRealm.createObject(Garment.class);
                 garment.setId(AppUtils.generateId(Garment.CLASS_NAME));
                 garment.setFilepath(filepath);
                 garment.setType(selectedType);
+                garment.setSource(source);
             }
         });
     }
@@ -241,10 +251,82 @@ public class ActMain extends AppCompatActivity {
         viewPagerBottom.setCurrentItem(randomBottom, true);
     }
 
+    /*private void saveAsFavourite() {
+        if (listTops.size() > 0 && listBottoms.size() > 0) {
+            int currentTop = viewPagerTop.getCurrentItem();
+            int currentBottom = viewPagerBottom.getCurrentItem();
+            final Garment garmentTop = listTops.get(currentTop);
+            final Garment garmentBottom = listBottoms.get(currentBottom);
+            Realm.getDefaultInstance().executeTransactionAsync(new Realm.Transaction() {
+                @Override
+                public void execute(Realm bgRealm) {
+                    Favourite favourite = bgRealm.createObject(Favourite.class);
+                    favourite.setId(AppUtils.generateId(Favourite.CLASS_NAME));
+                    favourite.setTop(garmentTop);
+                    favourite.setBottom(garmentBottom);
+                }
+            });
+        }
+    }*/
+
+    /*private void setViewPagerListeners() {
+        viewPagerTop.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                checkIfFavourite();
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
+        viewPagerBottom.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                checkIfFavourite();
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
+    }*/
+
+    /*private void checkIfFavourite() {
+        if (listTops.size() > 0 && listBottoms.size() > 0) {
+            int currentTop = viewPagerTop.getCurrentItem();
+            int currentBottom = viewPagerBottom.getCurrentItem();
+            String topId = listTops.get(currentTop).getId();
+            String bottomId = listBottoms.get(currentBottom).getId();
+
+            long favouritesFound = Realm.getDefaultInstance()
+                    .where(Favourite.class)
+                    .equalTo(Favourite.COL_TOP, topId)
+                    .equalTo(Favourite.COL_BOTTOM, bottomId)
+                    .count();
+
+            if (favouritesFound > 0) {
+                Toast.makeText(context, "Favourite!", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }*/
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
         // close realm instance
-        realm.close();
+        Realm.getDefaultInstance().close();
     }
 }

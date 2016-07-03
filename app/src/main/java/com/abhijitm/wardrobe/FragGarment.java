@@ -17,24 +17,36 @@ import com.squareup.picasso.Transformation;
 
 import java.io.File;
 
+import io.realm.Realm;
+import io.realm.RealmChangeListener;
+import io.realm.RealmModel;
+
 
 public class FragGarment extends Fragment {
 
-    private static Garment mGarment;
+    private static final String EXTRA_ID = "extra_id";
+    private Garment mGarment;
 
     public FragGarment() {
         // Required empty public constructor
     }
 
-    public static FragGarment newInstance(Garment garment) {
+    public static FragGarment newInstance(String garmentId) {
         FragGarment fragGarment = new FragGarment();
-        mGarment = garment;
+        Bundle bundle = new Bundle();
+        bundle.putString(EXTRA_ID, garmentId);
+        fragGarment.setArguments(bundle);
         return fragGarment;
     }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        String garmentId = getArguments().getString(EXTRA_ID);
+        mGarment = Realm.getDefaultInstance().where(Garment.class)
+                .equalTo(Garment.COL_ID, garmentId)
+                .findFirstAsync();
+
     }
 
     @Override
@@ -43,13 +55,22 @@ public class FragGarment extends Fragment {
         View view = inflater.inflate(R.layout.frag_garment, container, false);
 
         // initialize image view
-        ImageView imgGarment = (ImageView) view.findViewById(R.id.fragGarment_imgGarment);
+        final ImageView imgGarment = (ImageView) view.findViewById(R.id.fragGarment_imgGarment);
 
-        // get image file
-        File file = new File(mGarment.getFilepath());
-
-        // set image on image view
-        Picasso.with(getContext()).load(file).fit().centerCrop().into(imgGarment);
+        mGarment.addChangeListener(new RealmChangeListener<Garment>() {
+            @Override
+            public void onChange(Garment garment) {
+                if (garment.getSource() == Garment.SOURCE_CAMERA) {
+                    // get image file
+                    File file = new File(garment.getFilepath());
+                    // set image on image view
+                    Picasso.with(getContext()).load(file).fit().centerCrop().into(imgGarment);
+                } else {
+                    // set image on image view
+                    Picasso.with(getContext()).load(garment.getFilepath()).fit().centerCrop().into(imgGarment);
+                }
+            }
+        });
 
         return view;
     }
