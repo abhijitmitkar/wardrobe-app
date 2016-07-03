@@ -1,4 +1,4 @@
-package com.abhijitm.wardrobe;
+package com.abhijitm.wardrobe.utils;
 
 import android.app.Activity;
 import android.content.Context;
@@ -8,6 +8,8 @@ import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
+
+import com.abhijitm.wardrobe.R;
 
 import java.io.File;
 import java.io.IOException;

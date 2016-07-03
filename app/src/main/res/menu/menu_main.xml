@@ -4,10 +4,12 @@
 
     <item
         android:id="@+id/menuMain_shuffle"
+        android:icon="@drawable/ic_shuffle_white_24dp"
         android:title="@string/menuMain_shuffle"
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/menuMain_favourite"
+        android:icon="@drawable/ic_favorite_border_white_24dp"
         android:title="@string/menuMain_favourite"
         app:showAsAction="ifRoom" />
 </menu>

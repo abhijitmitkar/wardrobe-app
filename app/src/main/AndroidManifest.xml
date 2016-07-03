@@ -4,6 +4,8 @@
 
     <!-- for media -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <!-- to set morning alarm after boot -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
         android:name=".AppWardrobe"
@@ -20,6 +22,21 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- for morning alarm -->
+        <receiver
+            android:name=".utils.MorningAlarmReceiver"
+            android:enabled="true"
+            android:exported="false" />
+        <!-- to set morning alarm after reboot -->
+        <receiver
+            android:name=".utils.BootCompleteReceiver"
+            android:enabled="false"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

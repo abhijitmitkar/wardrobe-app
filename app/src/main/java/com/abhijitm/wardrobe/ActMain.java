@@ -9,7 +9,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
@@ -21,8 +20,8 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.abhijitm.wardrobe.models.Garment;
-
-import java.io.File;
+import com.abhijitm.wardrobe.utils.AppUtils;
+import com.abhijitm.wardrobe.utils.MediaHelper;
 
 import io.realm.Realm;
 import io.realm.RealmChangeListener;
@@ -31,15 +30,16 @@ import io.realm.RealmResults;
 public class ActMain extends AppCompatActivity {
 
     private static final String TAG = "ActMain";
+    public static final String EXTRA_FROM_NOTIF = "extra_from_notif";
     private ViewPager viewPagerTop;
     private ViewPager viewPagerBottom;
-    private FloatingActionButton fab;
     private Context context;
     private RealmResults<Garment> listTops;
     private RealmResults<Garment> listBottoms;
     private AdapterGarments adapterTops;
     private AdapterGarments adapterBottoms;
     private int selectedType = -1;
+    private boolean isFromNotif;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,17 +47,13 @@ public class ActMain extends AppCompatActivity {
         setContentView(R.layout.act_main);
 
         context = this;
+        isFromNotif = getIntent().getBooleanExtra(EXTRA_FROM_NOTIF, false);
 
         // initialize views
-        // toolbar
         AppUtils.setUpToolbar(this, R.id.actMain_toolbar, null, false);
-        // viewpager top
         viewPagerTop = (ViewPager) findViewById(R.id.actMain_viewpagerTop);
-        // viewpager bottom
         viewPagerBottom = (ViewPager) findViewById(R.id.actMain_viewpagerBottom);
-        // fab
-        fab = (FloatingActionButton) findViewById(R.id.actMain_fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.actMain_fab).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 showFabOptions(view);
@@ -72,11 +68,16 @@ public class ActMain extends AppCompatActivity {
             @Override
             public void onChange(RealmResults<Garment> results) {
                 adapterTops.notifyDataSetChanged();
+                // shuffle if activity opened from notification
+                if (isFromNotif) {
+                    shuffle();
+                } else {
+                    viewPagerTop.setCurrentItem(results.size(), true);
+                }
             }
         });
-        // create adapter for tops
+        // create and set adapter for tops
         adapterTops = new AdapterGarments(getSupportFragmentManager(), listTops);
-        // set adapter for tops
         viewPagerTop.setAdapter(adapterTops);
 
         // query Garments of type 'bottom' from realm
@@ -87,15 +88,27 @@ public class ActMain extends AppCompatActivity {
             @Override
             public void onChange(RealmResults<Garment> results) {
                 adapterBottoms.notifyDataSetChanged();
+
+                // shuffle if activity opened from notification
+                if (isFromNotif) {
+                    shuffle();
+                } else {
+                    viewPagerBottom.setCurrentItem(results.size(), true);
+                }
             }
         });
-        // create adapter for tops
+        // create and set adapter for tops
         adapterBottoms = new AdapterGarments(getSupportFragmentManager(), listBottoms);
-        // set adapter for tops
         viewPagerBottom.setAdapter(adapterBottoms);
 
         // set listeners on viewpagers
 //        setViewPagerListeners();
+
+        // set morning alarm if not set
+//        AppUtils.setMorningAlarmSet(context, false);
+        if (!AppUtils.isMorningAlarmSet(context)) {
+            AppUtils.setMorningAlarm(context);
+        }
 
     }
 
@@ -245,16 +258,19 @@ public class ActMain extends AppCompatActivity {
     }
 
     private void shuffle() {
-        int currentTop = viewPagerTop.getCurrentItem();
-        int currentBottom = viewPagerBottom.getCurrentItem();
-        int randomTop = AppUtils.getRandomNumber(listTops.size());
-        int randomBottom = AppUtils.getRandomNumber(listBottoms.size());
-        while (randomTop == currentTop) randomTop = AppUtils.getRandomNumber(listTops.size());
-        while (randomBottom == currentBottom)
-            randomBottom = AppUtils.getRandomNumber(listBottoms.size());
+        if (listTops.size() > 0 && listBottoms.size() > 0) {
+            isFromNotif = false;
+            int currentTop = viewPagerTop.getCurrentItem();
+            int currentBottom = viewPagerBottom.getCurrentItem();
+            int randomTop = AppUtils.getRandomNumber(listTops.size());
+            int randomBottom = AppUtils.getRandomNumber(listBottoms.size());
+            while (randomTop == currentTop) randomTop = AppUtils.getRandomNumber(listTops.size());
+            while (randomBottom == currentBottom)
+                randomBottom = AppUtils.getRandomNumber(listBottoms.size());
 
-        viewPagerTop.setCurrentItem(randomTop, true);
-        viewPagerBottom.setCurrentItem(randomBottom, true);
+            viewPagerTop.setCurrentItem(randomTop, true);
+            viewPagerBottom.setCurrentItem(randomBottom, true);
+        }
     }
 
     /*private void saveAsFavourite() {
