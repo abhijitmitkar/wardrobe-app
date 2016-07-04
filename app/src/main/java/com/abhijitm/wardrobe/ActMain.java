@@ -19,6 +19,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.abhijitm.wardrobe.models.Favourite;
 import com.abhijitm.wardrobe.models.Garment;
 import com.abhijitm.wardrobe.utils.AppUtils;
 import com.abhijitm.wardrobe.utils.MediaHelper;
@@ -42,6 +43,8 @@ public class ActMain extends AppCompatActivity {
     private AdapterGarments adapterBottoms;
     private int selectedType = -1;
     private boolean isFromNotif;
+    private Menu menu;
+    private boolean isFavourite;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -74,10 +77,10 @@ public class ActMain extends AppCompatActivity {
                 if (isFromNotif) {
                     // shuffle if activity opened from notification
                     shuffle();
-                } else if(savedInstanceState != null) {
+                } else if (savedInstanceState != null) {
                     // if screen is rotated, restore position
                     int savedTop = savedInstanceState.getInt(SAVED_TOP_POSITION, -1);
-                    if(savedTop != -1) viewPagerTop.setCurrentItem(savedTop);
+                    if (savedTop != -1) viewPagerTop.setCurrentItem(savedTop);
                 } else {
                     // scroll to newly added top
                     viewPagerTop.setCurrentItem(results.size(), true);
@@ -100,10 +103,10 @@ public class ActMain extends AppCompatActivity {
                 if (isFromNotif) {
                     // shuffle if activity opened from notification
                     shuffle();
-                } else if(savedInstanceState != null) {
+                } else if (savedInstanceState != null) {
                     // if screen is rotated, restore position
                     int savedBottom = savedInstanceState.getInt(SAVED_BOTTOM_POSITION, -1);
-                    if(savedBottom != -1) viewPagerBottom.setCurrentItem(savedBottom);
+                    if (savedBottom != -1) viewPagerBottom.setCurrentItem(savedBottom);
                 } else {
                     // scroll to newly added bottom
                     viewPagerBottom.setCurrentItem(results.size(), true);
@@ -115,7 +118,7 @@ public class ActMain extends AppCompatActivity {
         viewPagerBottom.setAdapter(adapterBottoms);
 
         // set listeners on viewpagers
-//        setViewPagerListeners();
+        setViewPagerListeners();
 
         // set morning alarm if not set
 //        AppUtils.setMorningAlarmSet(context, false);
@@ -123,18 +126,16 @@ public class ActMain extends AppCompatActivity {
             AppUtils.setMorningAlarm(context);
         }
 
-    }
+        // set listener to Favourites
+        setFavouriteListener();
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        // check for favourites
-//        checkIfFavourite();
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        this.menu = menu;
         getMenuInflater().inflate(R.menu.menu_main, menu);
+        checkIfFavourite();
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -145,7 +146,7 @@ public class ActMain extends AppCompatActivity {
                 shuffle();
                 return true;
             case R.id.menuMain_favourite:
-//                saveAsFavourite();
+                setOrUnsetFavourite();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -286,25 +287,41 @@ public class ActMain extends AppCompatActivity {
         }
     }
 
-    /*private void saveAsFavourite() {
+    private void setOrUnsetFavourite() {
         if (listTops.size() > 0 && listBottoms.size() > 0) {
             int currentTop = viewPagerTop.getCurrentItem();
             int currentBottom = viewPagerBottom.getCurrentItem();
-            final Garment garmentTop = listTops.get(currentTop);
-            final Garment garmentBottom = listBottoms.get(currentBottom);
-            Realm.getDefaultInstance().executeTransactionAsync(new Realm.Transaction() {
-                @Override
-                public void execute(Realm bgRealm) {
-                    Favourite favourite = bgRealm.createObject(Favourite.class);
-                    favourite.setId(AppUtils.generateId(Favourite.CLASS_NAME));
-                    favourite.setTop(garmentTop);
-                    favourite.setBottom(garmentBottom);
-                }
-            });
-        }
-    }*/
+            final String topId = listTops.get(currentTop).getId();
+            final String bottomId = listBottoms.get(currentBottom).getId();
 
-    /*private void setViewPagerListeners() {
+            if (isFavourite) {
+                Realm.getDefaultInstance()
+                        .executeTransactionAsync(new Realm.Transaction() {
+                            @Override
+                            public void execute(Realm bgRealm) {
+                                bgRealm.where(Favourite.class)
+                                        .equalTo(Favourite.COL_TOP, topId)
+                                        .equalTo(Favourite.COL_BOTTOM, bottomId)
+                                        .findFirst()
+                                        .deleteFromRealm();
+                            }
+                        });
+
+            } else {
+                Realm.getDefaultInstance().executeTransactionAsync(new Realm.Transaction() {
+                    @Override
+                    public void execute(Realm bgRealm) {
+                        Favourite favourite = bgRealm.createObject(Favourite.class);
+                        favourite.setId(AppUtils.generateId(Favourite.CLASS_NAME));
+                        favourite.setTop(topId);
+                        favourite.setBottom(bottomId);
+                    }
+                });
+            }
+        }
+    }
+
+    private void setViewPagerListeners() {
         viewPagerTop.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -337,9 +354,9 @@ public class ActMain extends AppCompatActivity {
 
             }
         });
-    }*/
+    }
 
-    /*private void checkIfFavourite() {
+    private void checkIfFavourite() {
         if (listTops.size() > 0 && listBottoms.size() > 0) {
             int currentTop = viewPagerTop.getCurrentItem();
             int currentBottom = viewPagerBottom.getCurrentItem();
@@ -353,10 +370,28 @@ public class ActMain extends AppCompatActivity {
                     .count();
 
             if (favouritesFound > 0) {
-                Toast.makeText(context, "Favourite!", Toast.LENGTH_SHORT).show();
+                if (menu != null)
+                    menu.findItem(R.id.menuMain_favourite).setIcon(R.drawable.ic_favorite_white_24dp);
+                isFavourite = true;
+            } else {
+                if (menu != null)
+                    menu.findItem(R.id.menuMain_favourite).setIcon(R.drawable.ic_favorite_border_white_24dp);
+                isFavourite = false;
             }
         }
-    }*/
+    }
+
+    private void setFavouriteListener() {
+        Realm.getDefaultInstance()
+                .where(Favourite.class)
+                .findAllAsync()
+                .addChangeListener(new RealmChangeListener<RealmResults<Favourite>>() {
+                    @Override
+                    public void onChange(RealmResults<Favourite> favourites) {
+                        checkIfFavourite();
+                    }
+                });
+    }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {

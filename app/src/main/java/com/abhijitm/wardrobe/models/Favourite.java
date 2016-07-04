@@ -28,15 +28,15 @@ public class Favourite extends RealmObject {
         return top;
     }
 
-    public void setTop(Garment top) {
-        this.top = top.getId();
+    public void setTop(String top) {
+        this.top = top;
     }
 
     public String getBottom() {
         return bottom;
     }
 
-    public void setBottom(Garment bottom) {
-        this.bottom = bottom.getId();
+    public void setBottom(String bottom) {
+        this.bottom = bottom;
     }
 }
