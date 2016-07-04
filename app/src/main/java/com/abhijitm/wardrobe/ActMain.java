@@ -31,6 +31,8 @@ public class ActMain extends AppCompatActivity {
 
     private static final String TAG = "ActMain";
     public static final String EXTRA_FROM_NOTIF = "extra_from_notif";
+    public static final String SAVED_TOP_POSITION = "saved_top_position";
+    public static final String SAVED_BOTTOM_POSITION = "saved_bottom_position";
     private ViewPager viewPagerTop;
     private ViewPager viewPagerBottom;
     private Context context;
@@ -42,7 +44,7 @@ public class ActMain extends AppCompatActivity {
     private boolean isFromNotif;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.act_main);
 
@@ -68,10 +70,16 @@ public class ActMain extends AppCompatActivity {
             @Override
             public void onChange(RealmResults<Garment> results) {
                 adapterTops.notifyDataSetChanged();
-                // shuffle if activity opened from notification
+
                 if (isFromNotif) {
+                    // shuffle if activity opened from notification
                     shuffle();
+                } else if(savedInstanceState != null) {
+                    // if screen is rotated, restore position
+                    int savedTop = savedInstanceState.getInt(SAVED_TOP_POSITION, -1);
+                    if(savedTop != -1) viewPagerTop.setCurrentItem(savedTop);
                 } else {
+                    // scroll to newly added top
                     viewPagerTop.setCurrentItem(results.size(), true);
                 }
             }
@@ -89,10 +97,15 @@ public class ActMain extends AppCompatActivity {
             public void onChange(RealmResults<Garment> results) {
                 adapterBottoms.notifyDataSetChanged();
 
-                // shuffle if activity opened from notification
                 if (isFromNotif) {
+                    // shuffle if activity opened from notification
                     shuffle();
+                } else if(savedInstanceState != null) {
+                    // if screen is rotated, restore position
+                    int savedBottom = savedInstanceState.getInt(SAVED_BOTTOM_POSITION, -1);
+                    if(savedBottom != -1) viewPagerBottom.setCurrentItem(savedBottom);
                 } else {
+                    // scroll to newly added bottom
                     viewPagerBottom.setCurrentItem(results.size(), true);
                 }
             }
@@ -344,6 +357,15 @@ public class ActMain extends AppCompatActivity {
             }
         }
     }*/
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        if (listTops.size() > 0 && listBottoms.size() > 0) {
+            outState.putInt(SAVED_TOP_POSITION, viewPagerTop.getCurrentItem());
+            outState.putInt(SAVED_BOTTOM_POSITION, viewPagerBottom.getCurrentItem());
+        }
+        super.onSaveInstanceState(outState);
+    }
 
     @Override
     protected void onDestroy() {
