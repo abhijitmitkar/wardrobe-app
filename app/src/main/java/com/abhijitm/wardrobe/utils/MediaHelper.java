@@ -19,6 +19,7 @@ import java.util.Locale;
 
 /**
  * Created by Abhijit on 02-07-2016.
+ * <br>This is a helper class that contains media related methods.
  */
 public class MediaHelper {
 
@@ -32,6 +33,11 @@ public class MediaHelper {
     public static final int REQUEST_CODE_PICKER_PRE_KITKAT = 201;
     public static final int REQUEST_CODE_PICKER_POST_KITKAT = 202;
 
+    /**
+     * This method starts camera for image capture.
+     * @param context Context
+     * @param REQUEST_CODE_CAPTURE_IMAGE Request code
+     */
     public static void startCamera(Context context, int REQUEST_CODE_CAPTURE_IMAGE) {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         File file = null;
@@ -47,6 +53,10 @@ public class MediaHelper {
         }
     }
 
+    /**
+     * This method starts file picker for choosing image.
+     * @param context Context
+     */
     public static void startPicker(Context context) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
             Intent intent = new Intent();
@@ -61,6 +71,12 @@ public class MediaHelper {
         }
     }
 
+    /**
+     * This method creates a image file with a formatted filename
+     * @param context
+     * @return Image file object
+     * @throws IOException
+     */
     private static File createImageFile(Context context) throws IOException {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
         String imageFileName = JPEG_FILE_PREFIX + timeStamp;
@@ -69,6 +85,12 @@ public class MediaHelper {
         return imageF;
     }
 
+    /**
+     * This method return the private folder for saving images.
+     * <br>A new folder is created in case no folder was found.
+     * @param context
+     * @return Folder for saving images
+     */
     private static File getPrivateAlbumDir(Context context) {
         File storageDir = null;
 
@@ -89,6 +111,13 @@ public class MediaHelper {
         return storageDir;
     }
 
+    /**
+     * This method checks for persistable URI permission need on KitKat and above
+     * for getting URI
+     * @param context
+     * @param data
+     * @return
+     */
     public static Uri checkForUriPermission_API19(Context context, Intent data) {
         Uri originalUri = data.getData();
         if (Build.VERSION.SDK_INT > 19) {

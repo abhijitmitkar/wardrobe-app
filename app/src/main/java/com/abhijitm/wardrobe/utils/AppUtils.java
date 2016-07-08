@@ -17,6 +17,7 @@ import java.util.Random;
 
 /**
  * Created by Abhijit on 30-06-2016.
+ * <br>This class contains static helper methods for the app.
  */
 public class AppUtils {
 
@@ -53,6 +54,13 @@ public class AppUtils {
         return className.toLowerCase() + "_" + System.currentTimeMillis();
     }
 
+    /**
+     * This method asks for permission in case of Android Marshmallow (API 23)
+     * @param context Context
+     * @param permissions Which permission to ask
+     * @param requestCode Request code
+     * @return Whether permission already granted
+     */
     public static boolean checkForPermissions_API23(Context context, String permissions, int requestCode) {
         boolean result;
         if (ContextCompat.checkSelfPermission(context, permissions) != PackageManager.PERMISSION_GRANTED) {
@@ -64,16 +72,31 @@ public class AppUtils {
         return result;
     }
 
+    /**
+     * This method generates a new random integer between 0 and size-1
+     * @param size Number of items in adapter
+     * @return Random integer
+     */
     public static int getRandomNumber(int size) {
         Random random = new Random();
         return random.nextInt(size);
     }
 
+    /**
+     * This method checks if morning alarm is set
+     * @param context Context
+     * @return Whether alarm was set or not
+     */
     public static boolean isMorningAlarmSet(Context context) {
         return context.getSharedPreferences(SHARED_PREFERENCES, Context.MODE_PRIVATE)
                 .getBoolean(KEY_MORNING_ALARM, false);
     }
 
+    /**
+     * This method set a flag for morning alarm
+     * @param context Context
+     * @param value Whether alarm is set or not
+     */
     public static void setMorningAlarmSet(Context context, boolean value) {
         context.getSharedPreferences(SHARED_PREFERENCES, Context.MODE_PRIVATE)
                 .edit()
@@ -81,6 +104,11 @@ public class AppUtils {
                 .commit();
     }
 
+    /**
+     * This method sets an alarm that triggers every morning at 6AM.
+     * Note that this may not be exactly at 6AM in order to save battery.
+     * @param context Context
+     */
     public static void setMorningAlarm(Context context) {
         Log.i(TAG, "<><><> setMorningAlarm");
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);

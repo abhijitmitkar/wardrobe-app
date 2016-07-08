@@ -50,8 +50,9 @@ public class ActMain extends AppCompatActivity {
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.act_main);
-
         context = this;
+
+        // check if this Activity was opened from notification
         isFromNotif = getIntent().getBooleanExtra(EXTRA_FROM_NOTIF, false);
 
         // initialize views
@@ -121,7 +122,6 @@ public class ActMain extends AppCompatActivity {
         setViewPagerListeners();
 
         // set morning alarm if not set
-//        AppUtils.setMorningAlarmSet(context, false);
         if (!AppUtils.isMorningAlarmSet(context)) {
             AppUtils.setMorningAlarm(context);
         }
@@ -135,6 +135,7 @@ public class ActMain extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         this.menu = menu;
         getMenuInflater().inflate(R.menu.menu_main, menu);
+        // to check favourite after device rotations
         checkIfFavourite();
         return super.onCreateOptionsMenu(menu);
     }
@@ -153,6 +154,11 @@ public class ActMain extends AppCompatActivity {
         }
     }
 
+    /**
+     * This methods show options menu to choose 'Top' or 'Bottom'
+     *
+     * @param view View object returned from OnClickListener
+     */
     private void showFabOptions(View view) {
         PopupMenu popupMenu = new PopupMenu(context, view, GravityCompat.END);
         popupMenu.inflate(R.menu.menu_options_garment);
@@ -173,6 +179,11 @@ public class ActMain extends AppCompatActivity {
         popupMenu.show();
     }
 
+    /**
+     * This method shows a dialog to choose from 'Camera' or 'Gallery'
+     *
+     * @param type Garment.TYPE_TOP or Garment.TYPE_BOTTOM
+     */
     private void showOptions(final int type) {
         selectedType = type;
 
@@ -197,6 +208,9 @@ public class ActMain extends AppCompatActivity {
                 .show();
     }
 
+    /**
+     * This method starts the camera process by checking for permission
+     */
     private void startCameraProcess() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (AppUtils.checkForPermissions_API23(context, Manifest.permission.WRITE_EXTERNAL_STORAGE, MediaHelper.PERMISSION_CAMERA)) {
@@ -208,6 +222,9 @@ public class ActMain extends AppCompatActivity {
         }
     }
 
+    /**
+     * This method starts the image picker process by checking for permission
+     */
     private void startPickerProcess() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (AppUtils.checkForPermissions_API23(context, Manifest.permission.WRITE_EXTERNAL_STORAGE, MediaHelper.PERMISSION_IMAGE_PICKER)) {
@@ -225,12 +242,14 @@ public class ActMain extends AppCompatActivity {
         switch (requestCode) {
             case MediaHelper.PERMISSION_CAMERA:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    MediaHelper.startCamera(context, MediaHelper.REQUEST_CODE_CAMERA);//Starting camera in Marshmallow.
+                    // Start camera if permission granted in Marshmallow
+                    MediaHelper.startCamera(context, MediaHelper.REQUEST_CODE_CAMERA);
                 }
                 break;
             case MediaHelper.PERMISSION_IMAGE_PICKER:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    MediaHelper.startPicker(context);//Starting image picker in Marshmallow.
+                    // Start image picker if permission granted in Marshmallow
+                    MediaHelper.startPicker(context);
                 }
                 break;
         }
@@ -258,6 +277,12 @@ public class ActMain extends AppCompatActivity {
         }
     }
 
+    /**
+     * This method saves the image to the DB
+     *
+     * @param source   Garment.SOURCE_CAMERA or Garment.SOURCE_PICKER
+     * @param filepath Image path to be saved
+     */
     private void saveToDB(final int source, final String filepath) {
         Realm.getDefaultInstance().executeTransactionAsync(new Realm.Transaction() {
             @Override
@@ -271,9 +296,16 @@ public class ActMain extends AppCompatActivity {
         });
     }
 
+    /**
+     * This method shuffles the top and bottom garments
+     * so that a particular combination does not repeat
+     * in consecutive shuffles
+     */
     private void shuffle() {
         if (listTops.size() > 0 && listBottoms.size() > 0) {
+            // set flag to false so that it wont shuffle again
             isFromNotif = false;
+
             int currentTop = viewPagerTop.getCurrentItem();
             int currentBottom = viewPagerBottom.getCurrentItem();
             int randomTop = AppUtils.getRandomNumber(listTops.size());
@@ -287,6 +319,10 @@ public class ActMain extends AppCompatActivity {
         }
     }
 
+    /**
+     * This method sets or unsets a particular combination as favourite.
+     * Only works if there is atleast one top and one bottom.
+     */
     private void setOrUnsetFavourite() {
         if (listTops.size() > 0 && listBottoms.size() > 0) {
             int currentTop = viewPagerTop.getCurrentItem();
@@ -295,6 +331,7 @@ public class ActMain extends AppCompatActivity {
             final String bottomId = listBottoms.get(currentBottom).getId();
 
             if (isFavourite) {
+                // if favourite, delete the DB entry
                 Realm.getDefaultInstance()
                         .executeTransactionAsync(new Realm.Transaction() {
                             @Override
@@ -308,6 +345,7 @@ public class ActMain extends AppCompatActivity {
                         });
 
             } else {
+                // else, create a DB entry
                 Realm.getDefaultInstance().executeTransactionAsync(new Realm.Transaction() {
                     @Override
                     public void execute(Realm bgRealm) {
@@ -321,6 +359,10 @@ public class ActMain extends AppCompatActivity {
         }
     }
 
+    /**
+     * This method sets listeners on horizontal swipes to check
+     * if current combination is marked as favourite or not.
+     */
     private void setViewPagerListeners() {
         viewPagerTop.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
@@ -356,6 +398,10 @@ public class ActMain extends AppCompatActivity {
         });
     }
 
+    /**
+     * This method checks if currently visible combination is marked as favourite or not.
+     * Only works if there is atleast one top and one bottom.
+     */
     private void checkIfFavourite() {
         if (listTops.size() > 0 && listBottoms.size() > 0) {
             int currentTop = viewPagerTop.getCurrentItem();
@@ -381,6 +427,10 @@ public class ActMain extends AppCompatActivity {
         }
     }
 
+    /**
+     * This method sets a listener on the DB class Favourite to observe for changes.
+     * If changes are found, checkIfFavourite is called.
+     */
     private void setFavouriteListener() {
         Realm.getDefaultInstance()
                 .where(Favourite.class)
@@ -395,6 +445,7 @@ public class ActMain extends AppCompatActivity {
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
+        // Current positions are saved before screen orientation changes
         if (listTops.size() > 0 && listBottoms.size() > 0) {
             outState.putInt(SAVED_TOP_POSITION, viewPagerTop.getCurrentItem());
             outState.putInt(SAVED_BOTTOM_POSITION, viewPagerBottom.getCurrentItem());

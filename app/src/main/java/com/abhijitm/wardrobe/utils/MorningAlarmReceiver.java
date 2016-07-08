@@ -1,6 +1,5 @@
 package com.abhijitm.wardrobe.utils;
 
-import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -12,12 +11,11 @@ import android.util.Log;
 
 import com.abhijitm.wardrobe.ActMain;
 import com.abhijitm.wardrobe.R;
-import com.abhijitm.wardrobe.models.Garment;
-
-import io.realm.Realm;
 
 /**
  * Created by Abhijit on 03-07-2016.
+ * <br>This BroadcastReceiver is triggered by the alarm set by AppUtils.setMorningAlarm.
+ * <br>It creates a notification that when opened, show a new combination of outfit.
  */
 public class MorningAlarmReceiver extends BroadcastReceiver {
     private static final String TAG = "MorningAlarmReceiver";
