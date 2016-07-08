@@ -25,7 +25,7 @@ public class AdapterGarments extends FragmentStatePagerAdapter {
     }
 
     /**
-     * Return the Fragment associated with a specified position.
+     * Return a new Fragment associated with each garment.
      *
      * @param position
      */
@@ -35,7 +35,7 @@ public class AdapterGarments extends FragmentStatePagerAdapter {
     }
 
     /**
-     * Return the number of views available.
+     * Return the number of garments available.
      */
     @Override
     public int getCount() {

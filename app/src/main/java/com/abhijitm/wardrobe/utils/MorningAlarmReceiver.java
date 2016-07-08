@@ -27,6 +27,12 @@ public class MorningAlarmReceiver extends BroadcastReceiver {
         createNotification(context);
     }
 
+    /**
+     * This method creates notification with a preset title and message.
+     * Clicking the notification opens the app with a new combination of clothes.
+     *
+     * @param context Context
+     */
     private void createNotification(Context context) {
         // prepare Intent
         Intent intent = new Intent(context, ActMain.class);
@@ -39,8 +45,8 @@ public class MorningAlarmReceiver extends BroadcastReceiver {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
         builder.setSmallIcon(R.mipmap.ic_launcher)
                 .setColor(context.getResources().getColor(R.color.colorAccent))
-                .setContentTitle(context.getString(R.string.app_name))
-                .setContentText("Today's combination is here")
+                .setContentTitle(context.getString(R.string.notif_title))
+                .setContentText(context.getString(R.string.notif_message))
                 .setAutoCancel(true)
                 .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
                 .setContentIntent(pendingIntent);

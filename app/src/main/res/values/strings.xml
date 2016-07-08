@@ -6,6 +6,8 @@
     <string name="option_gallery">Gallery</string>
     <string name="option_top">Add Top</string>
     <string name="option_bottom">Add Bottom</string>
+    <string name="notif_message">Today\'s combination is here</string>
+    <string name="notif_title">@string/app_name</string>
     <string-array name="media_options">
         <item>@string/option_camera</item>
         <item>@string/option_gallery</item>
